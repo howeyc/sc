@@ -20,27 +20,43 @@ func splitCellAddress(address string) (column, row int) {
 	return column, row
 }
 
-type Sheet struct {
-	columns [][]string
+type Cell struct {
+	rawVal, dispVal string
+
+	forwardRefs map[string][]string // Cells that are required for any formula
+	backRefs    map[string][]string // Cells that reference this cell's value
 }
 
-func (s *Sheet) getCell(address string) (string, error) {
+func (c *Cell) display(row, colStart, colEnd int) {
+
+}
+
+type Sheet struct {
+	filename string
+
+	// Change to map[string]Cell ??
+	columns [][]Cell
+}
+
+func (s *Sheet) getCell(address string) (*Cell, error) {
 	column, row := splitCellAddress(address)
 	if column < len(s.columns) && row < len(s.columns[column]) {
-		return s.columns[column][row], nil
+		return &s.columns[column][row], nil
 	}
-	return "", errors.New("Cell does not exist in spreadsheet.")
+	return nil, errors.New("Cell does not exist in spreadsheet.")
 }
 
 func (s *Sheet) setCell(address, val string) {
 	column, row := splitCellAddress(address)
 	if column >= len(s.columns) {
-		s.columns = append(s.columns, make([][]string, column-len(s.columns)+1)...)
+		s.columns = append(s.columns, make([][]Cell, column-len(s.columns)+1)...)
 	}
 	if row >= len(s.columns[column]) {
-		s.columns[column] = append(s.columns[column], make([]string, row-len(s.columns[column])+1)...)
+		s.columns[column] = append(s.columns[column], make([]Cell, row-len(s.columns[column])+1)...)
 	}
-	s.columns[column][row] = val
+
+	// TODO: more work here to set refs and calc disp value
+	s.columns[column][row] = Cell{rawVal: val}
 }
 
 func (s *Sheet) display() {
