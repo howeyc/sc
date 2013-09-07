@@ -38,13 +38,14 @@ func init() {
 
 type Cell struct {
 	rawVal, dispVal string
+	alignment       Align
 
 	forwardRefs map[string]struct{} // Cells that are required for any formula
 	backRefs    map[string]struct{} // Cells that reference this cell's value
 }
 
 func (c *Cell) display(row, colStart, colEnd int, selected bool) {
-	displayValue(c.dispVal, row, colStart, colEnd, AlignRight, selected)
+	displayValue(c.dispVal, row, colStart, colEnd, c.alignment, selected)
 }
 
 const (
@@ -94,13 +95,27 @@ func (s *Sheet) decreaseColumnWidth(column string) {
 func (s *Sheet) getCell(address string) (*Cell, error) {
 	if cell, found := s.data[address]; found {
 		return cell, nil
+	} else if address == s.selectedCell {
+		return &Cell{}, nil
 	}
 	return nil, errors.New("Cell does not exist in spreadsheet.")
 }
 
 func (s *Sheet) setCell(address, val string) {
 	// TODO: more work here to set refs and calc disp value
-	s.data[address] = &Cell{rawVal: val, dispVal: val}
+	alignment := AlignRight
+	dispVal := val
+	if val[0] == '<' {
+		alignment = AlignLeft
+		dispVal = val[1:]
+	} else if val[1] == '>' {
+		alignment = AlignRight
+		dispVal = val[1:]
+	} else if val[0] == '|' {
+		alignment = AlignCenter
+		dispVal = val[1:]
+	}
+	s.data[address] = &Cell{rawVal: val, dispVal: dispVal, alignment: alignment}
 	s.display(0, 0)
 }
 
@@ -256,6 +271,8 @@ func (s *Sheet) display(startRow, startColumn int) {
 			address := fmt.Sprintf("%s%d", columnArr[column], row)
 			if cell, err := s.getCell(address); err == nil {
 				cell.display(row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[column]), s.selectedCell == address)
+			} else {
+				displayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[column]), AlignLeft, false)
 			}
 		}
 		termCol += s.getColumnWidth(columnArr[column])
