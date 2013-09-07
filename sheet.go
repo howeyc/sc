@@ -184,6 +184,39 @@ func (s *Sheet) MoveDown() {
 	s.display(0, 0)
 }
 
+func (s *Sheet) MoveRight() {
+	sel := s.selectedCell
+	colStr := sel[:1]
+	rowStr := sel[1:]
+	row, _ := strconv.ParseInt(rowStr, 10, 64)
+	colIdx := 0
+	for columnArr[colIdx] != colStr {
+		colIdx++
+	}
+	colIdx++
+	colStr = columnArr[colIdx]
+	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.display(0, 0)
+}
+
+func (s *Sheet) MoveLeft() {
+	sel := s.selectedCell
+	colStr := sel[:1]
+	rowStr := sel[1:]
+	row, _ := strconv.ParseInt(rowStr, 10, 64)
+	colIdx := 0
+	for columnArr[colIdx] != colStr {
+		colIdx++
+	}
+	colIdx--
+	if colIdx < 0 {
+		colIdx = 0
+	}
+	colStr = columnArr[colIdx]
+	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.display(0, 0)
+}
+
 const (
 	DISPLAY_RAW_VALUE_ROW    = 0
 	DISPLAY_COMMAND_HELP_ROW = 1
