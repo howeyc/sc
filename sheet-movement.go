@@ -15,8 +15,11 @@ func (s *Sheet) MoveUp() {
 	if row < 0 {
 		row = 0
 	}
+	if int(row) < s.startRow {
+		s.startRow = int(row)
+	}
 	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
-	s.display(0, 0)
+	s.display()
 }
 
 func (s *Sheet) MoveDown() {
@@ -25,13 +28,11 @@ func (s *Sheet) MoveDown() {
 	rowStr := sel[1:]
 	row, _ := strconv.ParseInt(rowStr, 10, 64)
 	row++
-	/* TODO: move sheet down if necessary
-	if row < 0 {
-		row = 0
-	}
-	*/
 	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
-	s.display(0, 0)
+	if (int(row)-s.startRow)+1 > s.displayRows {
+		s.startRow++
+	}
+	s.display()
 }
 
 func (s *Sheet) MoveRight() {
@@ -44,9 +45,12 @@ func (s *Sheet) MoveRight() {
 		colIdx++
 	}
 	colIdx++
+	if (colIdx-s.startCol)+1 > s.displayCols {
+		s.startCol++
+	}
 	colStr = columnArr[colIdx]
 	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
-	s.display(0, 0)
+	s.display()
 }
 
 func (s *Sheet) MoveLeft() {
@@ -62,7 +66,10 @@ func (s *Sheet) MoveLeft() {
 	if colIdx < 0 {
 		colIdx = 0
 	}
+	if colIdx < s.startCol {
+		s.startCol = colIdx
+	}
 	colStr = columnArr[colIdx]
 	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
-	s.display(0, 0)
+	s.display()
 }

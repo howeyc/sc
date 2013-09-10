@@ -40,6 +40,10 @@ type Sheet struct {
 	selectedCell string
 	columnWidths map[string]int
 	data         map[string]*Cell
+
+	// display window
+	startRow, startCol       int
+	displayRows, displayCols int
 }
 
 func newSheet(filename string) Sheet {
@@ -74,6 +78,10 @@ func (s *Sheet) decreaseColumnWidth(column string) {
 	}
 }
 
+func (s *Sheet) clearCell(address string) {
+	delete(s.data, address)
+}
+
 func (s *Sheet) getCell(address string) (*Cell, error) {
 	if cell, found := s.data[address]; found {
 		return cell, nil
@@ -89,14 +97,14 @@ func (s *Sheet) setCell(address, val string) {
 	dispVal := val
 	if val[0] == '<' {
 		alignment = AlignLeft
-		dispVal = val[1:]
-	} else if val[1] == '>' {
+		dispVal = val[2 : len(val)-1]
+	} else if val[0] == '>' {
 		alignment = AlignRight
-		dispVal = val[1:]
+		dispVal = val[2 : len(val)-1]
 	} else if val[0] == '|' {
 		alignment = AlignCenter
-		dispVal = val[1:]
+		dispVal = val[2 : len(val)-1]
 	}
 	s.data[address] = &Cell{rawVal: val, dispVal: dispVal, alignment: alignment}
-	s.display(0, 0)
+	s.display()
 }

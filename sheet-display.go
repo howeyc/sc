@@ -13,12 +13,12 @@ const (
 	DISPLAY_SHEET_START_ROW  = 2
 )
 
-func (s *Sheet) display(startRow, startColumn int) {
+func (s *Sheet) display() {
 	defer termbox.Flush()
 	displayWidth, displayHeight := termbox.Size()
 
 	// Column Headers
-	rowStr := fmt.Sprintf("% 3d", startRow)
+	rowStr := fmt.Sprintf("% 3d", s.startRow)
 	x := 0
 	for x <= len(rowStr) {
 		termbox.SetCell(x, DISPLAY_SHEET_START_ROW, ' ', termbox.ColorWhite, termbox.ColorWhite)
@@ -26,30 +26,34 @@ func (s *Sheet) display(startRow, startColumn int) {
 	}
 	startDispColumn := x
 	displayColumns := 0
-	for column := 0; x+s.getColumnWidth(columnArr[column]) < displayWidth; column++ {
+	for column := s.startCol; x+s.getColumnWidth(columnArr[column]) < displayWidth; column++ {
 		displayValue(columnArr[column], DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnArr[column]), AlignCenter, true)
 		x += s.getColumnWidth(columnArr[column])
-		displayColumns = column
+		displayColumns = column - s.startCol + 1
 	}
 
 	displayRows := 0
-	for row := DISPLAY_SHEET_START_ROW + 1; row < displayHeight; row++ {
-		rowStr := fmt.Sprintf("% 3d", row-(DISPLAY_SHEET_START_ROW+1))
-		displayValue(rowStr, row, 0, len(rowStr)-1, AlignRight, true)
-		displayRows = row
+	y := DISPLAY_SHEET_START_ROW + 1
+	for row := s.startRow; y < displayHeight; y++ {
+		rowStr := fmt.Sprintf("% 3d", row)
+		displayValue(rowStr, y, 0, len(rowStr)-1, AlignRight, true)
+		displayRows = row - s.startRow + 1
+		row++
 	}
-	displayRows = displayRows - (DISPLAY_SHEET_START_ROW + 1)
 
 	termCol := startDispColumn
 	for column := 0; column < displayColumns; column++ {
+		valCol := column + s.startCol
 		for row := 0; row < displayRows; row++ {
-			address := fmt.Sprintf("%s%d", columnArr[column], row)
+			valRow := row + s.startRow
+			address := fmt.Sprintf("%s%d", columnArr[valCol], valRow)
 			if cell, err := s.getCell(address); err == nil {
-				cell.display(row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[column]), s.selectedCell == address)
+				cell.display(row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), s.selectedCell == address)
 			} else {
-				displayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[column]), AlignLeft, false)
+				displayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), AlignLeft, false)
 			}
 		}
-		termCol += s.getColumnWidth(columnArr[column])
+		termCol += s.getColumnWidth(columnArr[valCol])
 	}
+	s.displayRows, s.displayCols = displayRows, displayColumns
 }

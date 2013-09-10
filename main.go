@@ -24,7 +24,7 @@ func main() {
 	sheet.setCell("A4", "woerjlfj")
 	sheet.setCell("D4", "Roar")
 
-	sheet.display(0, 0)
+	sheet.display()
 
 	processTermboxEvents(&sheet)
 }
