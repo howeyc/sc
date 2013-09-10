@@ -31,7 +31,7 @@ func displayValue(val string, row, colStart, colEnd int, alignment Align, invers
 	startBlank, endBlank := 0, 0
 	switch alignment {
 	case AlignRight:
-		startBlank = blankSize
+		startBlank = blankSize - 1
 	case AlignCenter:
 		startBlank, endBlank = blankSize/2, blankSize/2
 		if startBlank+endBlank < blankSize {
@@ -41,7 +41,7 @@ func displayValue(val string, row, colStart, colEnd int, alignment Align, invers
 		endBlank = blankSize
 	}
 	i := 0
-	for bs := 0; bs < startBlank; bs++ {
+	for bsl := 0; bsl < startBlank; bsl++ {
 		termbox.SetCell(colStart+i, row, ' ', bg, bg)
 		i++
 	}
@@ -54,7 +54,7 @@ func displayValue(val string, row, colStart, colEnd int, alignment Align, invers
 		termbox.SetCell(colStart+i, row, nr, fg, bg)
 		i++
 	}
-	for bs := 0; bs < endBlank; bs++ {
+	for bsr := 0; bsr < endBlank; bsr++ {
 		termbox.SetCell(colStart+i, row, ' ', bg, bg)
 		i++
 	}
