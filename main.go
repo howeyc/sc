@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -14,15 +15,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	sheet := newSheet("")
+	flag.Parse()
 
-	// Set some default values
-	sheet.setCell("A0", "start")
-	sheet.setCell("A1", "adsf")
-	sheet.setCell("A2", "ljl;")
-	sheet.setCell("A3", "owerjf")
-	sheet.setCell("A4", "woerjlfj")
-	sheet.setCell("D4", "Roar")
+	sheet := newSheet(flag.Arg(0))
 
 	sheet.display()
 

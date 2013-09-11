@@ -93,18 +93,6 @@ func (s *Sheet) getCell(address string) (*Cell, error) {
 
 func (s *Sheet) setCell(address, val string) {
 	// TODO: more work here to set refs and calc disp value
-	alignment := AlignRight
-	dispVal := val
-	if val[0] == '<' {
-		alignment = AlignLeft
-		dispVal = val[2 : len(val)-1]
-	} else if val[0] == '>' {
-		alignment = AlignRight
-		dispVal = val[2 : len(val)-1]
-	} else if val[0] == '|' {
-		alignment = AlignCenter
-		dispVal = val[2 : len(val)-1]
-	}
-	s.data[address] = &Cell{rawVal: val, dispVal: dispVal, alignment: alignment}
+	s.data[address] = NewCell(val)
 	s.display()
 }
