@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"errors"
+	"os"
+	"strings"
 )
 
 var columnArr []string
@@ -48,6 +51,41 @@ type Sheet struct {
 
 func newSheet(filename string) Sheet {
 	s := Sheet{filename: filename, selectedCell: "A0", columnWidths: make(map[string]int), data: make(map[string]*Cell)}
+
+	// Load file
+	if file, err := os.Open(filename); err == nil {
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if strings.HasPrefix(line, "#") || len(line) < 1 {
+				continue
+			}
+			words := strings.Split(line, " ")
+			cmd := ""
+			adrs := ""
+			val := ""
+			if len(words) >= 2 {
+				cmd = words[0]
+				adrs = words[1]
+			}
+			if len(words) >= 4 {
+				val = strings.Join(words[3:], " ")
+			}
+			switch cmd {
+			case "leftstring":
+				s.setCell(adrs, &Cell{stringType: true, alignment: AlignLeft, value: val})
+			case "rightstrng":
+				s.setCell(adrs, &Cell{stringType: true, alignment: AlignRight, value: val})
+			case "label":
+				s.setCell(adrs, &Cell{stringType: true, alignment: AlignCenter, value: val})
+			case "let":
+				s.setCell(adrs, &Cell{stringType: false, alignment: AlignRight, value: val})
+			case "goto":
+				s.selectedCell = adrs
+			}
+		}
+	}
+
 	return s
 }
 
