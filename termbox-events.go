@@ -23,6 +23,7 @@ func processTermboxEvents(s *Sheet) {
 	stringEntry := false
 	smode := NORMAL_MODE
 	valBuffer := bytes.Buffer{}
+	insAlign := AlignRight
 
 	// Display
 	go func() {
@@ -30,7 +31,7 @@ func processTermboxEvents(s *Sheet) {
 			switch smode {
 			case NORMAL_MODE:
 				selSel, _ := s.getCell(s.selectedCell)
-				displayValue(fmt.Sprintf("%s (10 2 0) [%s]", s.selectedCell, selSel.rawVal), 0, 0, 80, AlignLeft, false)
+				displayValue(fmt.Sprintf("%s (10 2 0) [%s]", s.selectedCell, selSel.statusBarVal()), 0, 0, 80, AlignLeft, false)
 			case INSERT_MODE:
 				displayValue(fmt.Sprintf("i> %s %s = %s", prompt, s.selectedCell, valBuffer.String()), 0, 0, 80, AlignLeft, false)
 			case EXIT_MODE:
@@ -62,23 +63,21 @@ func processTermboxEvents(s *Sheet) {
 					case '=', 'i':
 						smode = INSERT_MODE
 						prompt = "let"
+						insAlign = AlignRight
 					case '<':
 						prompt = "leftstring"
 						smode = INSERT_MODE
-						valBuffer.WriteRune(ev.Ch)
-						valBuffer.WriteRune('"')
+						insAlign = AlignLeft
 						stringEntry = true
 					case '>':
 						prompt = "rightstring"
 						smode = INSERT_MODE
-						valBuffer.WriteRune(ev.Ch)
-						valBuffer.WriteRune('"')
+						insAlign = AlignRight
 						stringEntry = true
 					case '\\':
 						prompt = "label"
 						smode = INSERT_MODE
-						valBuffer.WriteRune('|')
-						valBuffer.WriteRune('"')
+						insAlign = AlignCenter
 						stringEntry = true
 					case 'h':
 						s.MoveLeft()
@@ -94,10 +93,7 @@ func processTermboxEvents(s *Sheet) {
 				}
 			case INSERT_MODE:
 				if ev.Key == termbox.KeyEnter {
-					if stringEntry {
-						valBuffer.WriteRune('"')
-					}
-					s.setCell(s.selectedCell, valBuffer.String())
+					s.setCell(s.selectedCell, &Cell{value: valBuffer.String(), alignment: insAlign, stringType: stringEntry})
 					valBuffer.Reset()
 					smode = NORMAL_MODE
 					stringEntry = false

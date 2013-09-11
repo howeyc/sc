@@ -91,8 +91,8 @@ func (s *Sheet) getCell(address string) (*Cell, error) {
 	return nil, errors.New("Cell does not exist in spreadsheet.")
 }
 
-func (s *Sheet) setCell(address, val string) {
+func (s *Sheet) setCell(address string, cell *Cell) {
 	// TODO: more work here to set refs and calc disp value
-	s.data[address] = NewCell(val)
+	s.data[address] = cell
 	s.display()
 }
