@@ -35,7 +35,7 @@ func processTermboxEvents(s *Sheet) {
 			case INSERT_MODE:
 				displayValue(fmt.Sprintf("i> %s %s = %s", prompt, s.selectedCell, valBuffer.String()), 0, 0, 80, AlignLeft, false)
 			case EXIT_MODE:
-				displayValue(fmt.Sprintf("File \"%s\" is modified, save before exiting?", "<file>"), 0, 0, 80, AlignLeft, false)
+				displayValue(fmt.Sprintf("File \"%s\" is modified, save before exiting?", s.filename), 0, 0, 80, AlignLeft, false)
 			}
 			termbox.Flush()
 		}
