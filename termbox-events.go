@@ -4,6 +4,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/nsf/termbox-go"
 )
@@ -13,6 +14,7 @@ type SheetMode int
 const (
 	NORMAL_MODE SheetMode = iota
 	INSERT_MODE SheetMode = iota
+	EXIT_MODE   SheetMode = iota
 )
 
 func processTermboxEvents(s *Sheet) {
@@ -20,6 +22,24 @@ func processTermboxEvents(s *Sheet) {
 	stringEntry := false
 	smode := NORMAL_MODE
 	valBuffer := bytes.Buffer{}
+
+	// Display
+	go func() {
+		for _ = range time.Tick(200 * time.Millisecond) {
+			switch smode {
+			case NORMAL_MODE:
+				selSel, _ := s.getCell(s.selectedCell)
+				displayValue(fmt.Sprintf("%s (10 2 0) [%s]", s.selectedCell, selSel.rawVal), 0, 0, 80, AlignLeft, false)
+			case INSERT_MODE:
+				displayValue(fmt.Sprintf("i> %s %s = %s", prompt, s.selectedCell, valBuffer.String()), 0, 0, 80, AlignLeft, false)
+			case EXIT_MODE:
+				displayValue(fmt.Sprintf("File \"%s\" is modified, save before exiting?", "<file>"), 0, 0, 80, AlignLeft, false)
+			}
+			termbox.Flush()
+		}
+	}()
+
+	// Events
 	for ev := termbox.PollEvent(); ev.Type != termbox.EventError; ev = termbox.PollEvent() {
 		switch ev.Type {
 		case termbox.EventKey:
@@ -37,8 +57,7 @@ func processTermboxEvents(s *Sheet) {
 				case 0:
 					switch ev.Ch {
 					case 'q':
-						termbox.Close()
-						return
+						smode = EXIT_MODE
 					case '=', 'i':
 						smode = INSERT_MODE
 						prompt = "let"
@@ -72,8 +91,6 @@ func processTermboxEvents(s *Sheet) {
 						s.clearCell(s.selectedCell)
 					}
 				}
-				selSel, _ := s.getCell(s.selectedCell)
-				displayValue(fmt.Sprintf("%s (10 2 0) [%s]", s.selectedCell, selSel.rawVal), 0, 0, 80, AlignLeft, false)
 			case INSERT_MODE:
 				if ev.Key == termbox.KeyEnter {
 					if stringEntry {
@@ -97,9 +114,13 @@ func processTermboxEvents(s *Sheet) {
 				} else {
 					valBuffer.WriteRune(ev.Ch)
 				}
-				displayValue(fmt.Sprintf("i> %s %s = %s", prompt, s.selectedCell, valBuffer.String()), 0, 0, 80, AlignLeft, false)
+			case EXIT_MODE:
+				if ev.Key == 0 && ev.Ch == 'y' {
+					// TODO: SAVE
+				}
+				termbox.Close()
+				return
 			}
 		}
-		termbox.Flush()
 	}
 }
