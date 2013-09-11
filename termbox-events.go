@@ -87,6 +87,13 @@ func processTermboxEvents(s *Sheet) {
 					valBuffer.Reset()
 					smode = NORMAL_MODE
 					stringEntry = false
+				} else if ev.Key == termbox.KeyBackspace {
+					s := valBuffer.String()
+					valBuffer = bytes.Buffer{}
+					if len(s) > 0 {
+						s = s[0 : len(s)-1]
+					}
+					valBuffer.WriteString(s)
 				} else {
 					valBuffer.WriteRune(ev.Ch)
 				}
