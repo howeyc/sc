@@ -3,7 +3,10 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
+	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -37,12 +40,18 @@ const (
 	STARTING_COLUMN_WIDTH = 10
 )
 
+type ColumnFormat struct {
+	width     int
+	precision int
+	ctype     int
+}
+
 type Sheet struct {
 	filename string
 
-	selectedCell string
-	columnWidths map[string]int
-	data         map[string]*Cell
+	selectedCell  string
+	columnFormats map[string]ColumnFormat
+	data          map[string]*Cell
 
 	// display window
 	startRow, startCol       int
@@ -50,7 +59,7 @@ type Sheet struct {
 }
 
 func newSheet(filename string) Sheet {
-	s := Sheet{filename: filename, selectedCell: "A0", columnWidths: make(map[string]int), data: make(map[string]*Cell)}
+	s := Sheet{filename: filename, selectedCell: "A0", columnFormats: make(map[string]ColumnFormat), data: make(map[string]*Cell)}
 
 	// Load file
 	if file, err := os.Open(filename); err == nil {
@@ -71,6 +80,9 @@ func newSheet(filename string) Sheet {
 			if len(words) >= 4 {
 				val = strings.Join(words[3:], " ")
 			}
+			if len(val) > 1 && val[0] == '"' {
+				val = val[1 : len(val)-1]
+			}
 			switch cmd {
 			case "leftstring":
 				s.setCell(adrs, &Cell{stringType: true, alignment: AlignLeft, value: val})
@@ -82,6 +94,11 @@ func newSheet(filename string) Sheet {
 				s.setCell(adrs, &Cell{stringType: false, alignment: AlignRight, value: val})
 			case "goto":
 				s.selectedCell = adrs
+			case "format":
+				width, _ := strconv.ParseInt(words[2], 10, 64)
+				precision, _ := strconv.ParseInt(words[3], 10, 64)
+				ctype, _ := strconv.ParseInt(words[4], 10, 64)
+				s.columnFormats[adrs] = ColumnFormat{width: int(width), precision: int(precision), ctype: int(ctype)}
 			}
 		}
 	}
@@ -89,30 +106,47 @@ func newSheet(filename string) Sheet {
 	return s
 }
 
-func (s *Sheet) getColumnWidth(column string) int {
-	if width, found := s.columnWidths[column]; found {
-		return width
+func (s *Sheet) writeFormats(w io.Writer) {
+	for k, cFormat := range s.columnFormats {
+		fmt.Fprintf(w, "format %s %d %d %d\n", k, cFormat.width, cFormat.precision, cFormat.ctype)
+	}
+}
+
+func (s *Sheet) displayFormat(address string) string {
+	column := address[1:]
+	if cFormat, found := s.columnFormats[column]; found {
+		return fmt.Sprintf("%d %d %d", cFormat.width, cFormat.precision, cFormat.ctype)
 	} else {
-		s.columnWidths[column] = STARTING_COLUMN_WIDTH
+		return fmt.Sprintf("%d %d %d", STARTING_COLUMN_WIDTH, 2, 0)
+	}
+}
+
+func (s *Sheet) getColumnWidth(column string) int {
+	if cFormat, found := s.columnFormats[column]; found {
+		return cFormat.width
+	} else {
+		s.columnFormats[column] = ColumnFormat{width: STARTING_COLUMN_WIDTH, precision: 2, ctype: 0}
 		return STARTING_COLUMN_WIDTH
 	}
 }
 
 func (s *Sheet) increaseColumnWidth(column string) {
-	if width, found := s.columnWidths[column]; found {
-		s.columnWidths[column] = width + 1
+	if cFormat, found := s.columnFormats[column]; found {
+		cFormat.width += 1
+		s.columnFormats[column] = cFormat
 	} else {
-		s.columnWidths[column] = STARTING_COLUMN_WIDTH + 1
+		s.columnFormats[column] = ColumnFormat{width: STARTING_COLUMN_WIDTH + 1, precision: 2, ctype: 0}
 	}
 }
 
 func (s *Sheet) decreaseColumnWidth(column string) {
-	if width, found := s.columnWidths[column]; found {
-		if width > 1 {
-			s.columnWidths[column] = width - 1
+	if cFormat, found := s.columnFormats[column]; found {
+		if cFormat.width > 1 {
+			cFormat.width--
+			s.columnFormats[column] = cFormat
 		}
 	} else {
-		s.columnWidths[column] = STARTING_COLUMN_WIDTH - 1
+		s.columnFormats[column] = ColumnFormat{width: STARTING_COLUMN_WIDTH - 1, precision: 2, ctype: 0}
 	}
 }
 
