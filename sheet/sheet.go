@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"scim/evaler"
 	"scim/sheet/align"
 )
 
@@ -162,6 +163,13 @@ func (s *Sheet) decreaseColumnWidth(column string) {
 }
 
 func (s *Sheet) ClearCell(address string) {
+	if cell, err := s.GetCell(address); err == nil {
+		for forRef, _ := range cell.forwardRefs {
+			if forCell, forErr := s.GetCell(forRef); forErr == nil {
+				delete(forCell.backRefs, forRef)
+			}
+		}
+	}
 	delete(s.data, address)
 }
 
@@ -175,8 +183,23 @@ func (s *Sheet) GetCell(address string) (*Cell, error) {
 }
 
 func (s *Sheet) SetCell(address string, cell *Cell) {
-	// TODO: more work here to set refs and calc disp value
+	if currentCell, found := s.data[address]; found {
+		cell.backRefs = currentCell.backRefs
+	}
+	if !cell.stringType {
+		postfix := evaler.GetPostfix(cell.value)
+		for _, token := range postfix {
+			if evaler.IsCellAddr(token) {
+				cell.forwardRefs[token] = struct{}{}
+				if tokCell, tokErr := s.GetCell(token); tokErr == nil {
+					tokCell.backRefs[address] = struct{}{}
+				}
+			}
+		}
+	}
 	s.data[address] = cell
+
+	// TODO: change to display current cell and all back references
 	s.display()
 }
 
