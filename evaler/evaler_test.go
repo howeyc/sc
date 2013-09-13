@@ -1,10 +1,11 @@
 package evaler_test
 
 import (
-	"github.com/soniah/evaler"
 	"math"
 	"math/big"
 	"testing"
+
+	"scim/evaler"
 )
 
 // -----------------------------------------------------------------------------

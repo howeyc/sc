@@ -1,5 +1,5 @@
 // sheet-movement
-package main
+package sheet
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Sheet) MoveUp() {
-	sel := s.selectedCell
+	sel := s.SelectedCell
 	colStr := sel[:1]
 	rowStr := sel[1:]
 	row, _ := strconv.ParseInt(rowStr, 10, 64)
@@ -18,17 +18,17 @@ func (s *Sheet) MoveUp() {
 	if int(row) < s.startRow {
 		s.startRow = int(row)
 	}
-	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
 	s.display()
 }
 
 func (s *Sheet) MoveDown() {
-	sel := s.selectedCell
+	sel := s.SelectedCell
 	colStr := sel[:1]
 	rowStr := sel[1:]
 	row, _ := strconv.ParseInt(rowStr, 10, 64)
 	row++
-	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
 	if (int(row)-s.startRow)+1 > s.displayRows {
 		s.startRow++
 	}
@@ -36,7 +36,7 @@ func (s *Sheet) MoveDown() {
 }
 
 func (s *Sheet) MoveRight() {
-	sel := s.selectedCell
+	sel := s.SelectedCell
 	colStr := sel[:1]
 	rowStr := sel[1:]
 	row, _ := strconv.ParseInt(rowStr, 10, 64)
@@ -49,12 +49,12 @@ func (s *Sheet) MoveRight() {
 		s.startCol++
 	}
 	colStr = columnArr[colIdx]
-	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
 	s.display()
 }
 
 func (s *Sheet) MoveLeft() {
-	sel := s.selectedCell
+	sel := s.SelectedCell
 	colStr := sel[:1]
 	rowStr := sel[1:]
 	row, _ := strconv.ParseInt(rowStr, 10, 64)
@@ -70,6 +70,6 @@ func (s *Sheet) MoveLeft() {
 		s.startCol = colIdx
 	}
 	colStr = columnArr[colIdx]
-	s.selectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
 	s.display()
 }

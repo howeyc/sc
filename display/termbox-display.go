@@ -1,22 +1,16 @@
 // termbox-display
-package main
+package display
 
 import (
 	"strings"
 	"unicode/utf8"
 
+	"scim/sheet/align"
+
 	"github.com/nsf/termbox-go"
 )
 
-type Align int
-
-const (
-	AlignRight Align = iota
-	AlignLeft
-	AlignCenter
-)
-
-func displayValue(val string, row, colStart, colEnd int, alignment Align, inverse bool) {
+func DisplayValue(val string, row, colStart, colEnd int, alignment align.Align, inverse bool) {
 	fg, bg := termbox.ColorWhite, termbox.ColorBlack
 	if inverse {
 		fg, bg = bg, fg
@@ -30,14 +24,14 @@ func displayValue(val string, row, colStart, colEnd int, alignment Align, invers
 	}
 	startBlank, endBlank := 0, 0
 	switch alignment {
-	case AlignRight:
+	case align.AlignRight:
 		startBlank = blankSize - 1
-	case AlignCenter:
+	case align.AlignCenter:
 		startBlank, endBlank = blankSize/2, blankSize/2
 		if startBlank+endBlank < blankSize {
 			endBlank++
 		}
-	case AlignLeft:
+	case align.AlignLeft:
 		endBlank = blankSize
 	}
 	i := 0

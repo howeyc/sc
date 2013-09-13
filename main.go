@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"scim/sheet"
+
 	"github.com/nsf/termbox-go"
 )
 
@@ -17,9 +19,7 @@ func main() {
 
 	flag.Parse()
 
-	sheet := newSheet(flag.Arg(0))
-
-	sheet.display()
+	sheet := sheet.NewSheet(flag.Arg(0))
 
 	processTermboxEvents(&sheet)
 }

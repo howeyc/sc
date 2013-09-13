@@ -1,8 +1,11 @@
 // sheet-display
-package main
+package sheet
 
 import (
 	"fmt"
+
+	"scim/display"
+	"scim/sheet/align"
 
 	"github.com/nsf/termbox-go"
 )
@@ -27,7 +30,7 @@ func (s *Sheet) display() {
 	startDispColumn := x
 	displayColumns := 0
 	for column := s.startCol; x+s.getColumnWidth(columnArr[column]) < displayWidth; column++ {
-		displayValue(columnArr[column], DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnArr[column]), AlignCenter, true)
+		display.DisplayValue(columnArr[column], DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnArr[column]), align.AlignCenter, true)
 		x += s.getColumnWidth(columnArr[column])
 		displayColumns = column - s.startCol + 1
 	}
@@ -36,7 +39,7 @@ func (s *Sheet) display() {
 	y := DISPLAY_SHEET_START_ROW + 1
 	for row := s.startRow; y < displayHeight; y++ {
 		rowStr := fmt.Sprintf("% 3d", row)
-		displayValue(rowStr, y, 0, len(rowStr)-1, AlignRight, true)
+		display.DisplayValue(rowStr, y, 0, len(rowStr)-1, align.AlignRight, true)
 		displayRows = row - s.startRow + 1
 		row++
 	}
@@ -47,10 +50,10 @@ func (s *Sheet) display() {
 		for row := 0; row < displayRows; row++ {
 			valRow := row + s.startRow
 			address := fmt.Sprintf("%s%d", columnArr[valCol], valRow)
-			if cell, err := s.getCell(address); err == nil {
-				cell.display(row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), s.selectedCell == address)
+			if cell, err := s.GetCell(address); err == nil {
+				cell.display(s, address, row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), s.SelectedCell == address)
 			} else {
-				displayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), AlignLeft, false)
+				display.DisplayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), align.AlignLeft, false)
 			}
 		}
 		termCol += s.getColumnWidth(columnArr[valCol])

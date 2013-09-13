@@ -6,16 +6,19 @@ package evaler
 
 import (
 	"fmt"
-	"github.com/soniah/evaler/stack"
 	"math"
 	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"scim/evaler/stack"
 )
 
 var whitespace_rx = regexp.MustCompile(`\s+`)
 var fp_rx = regexp.MustCompile(`(\d+(?:\.\d)?)`) // simple fp number
+var tokenize_regex = regexp.MustCompile(`([A-Z]*\d+(?:\.\d)?)`)
+var cell_addr = regexp.MustCompile(`([A-Z]+\d+)`)
 var operators = "-+**/<>"
 
 // prec returns the operator's precedence
@@ -43,6 +46,11 @@ func isOperator(token string) bool {
 // isOperand returns true if token is an operand
 func isOperand(token string) bool {
 	return fp_rx.MatchString(token)
+}
+
+// isCellAddr returns true if token is a cell address
+func IsCellAddr(token string) bool {
+	return cell_addr.MatchString(token)
 }
 
 // convert2postfix converts an infix expression to postfix
@@ -84,7 +92,7 @@ func convert2postfix(tokens []string) []string {
 				}
 			}
 
-		} else if isOperand(token) {
+		} else if isOperand(token) || IsCellAddr(token) {
 			result = append(result, token)
 		}
 
@@ -99,7 +107,7 @@ func convert2postfix(tokens []string) []string {
 }
 
 // evaluatePostfix takes a postfix expression and evaluates it
-func evaluatePostfix(postfix []string) (*big.Rat, error) {
+func EvaluatePostfix(postfix []string) (*big.Rat, error) {
 	var stack stack.Stack
 	result := new(big.Rat) // note: a new(big.Rat) has value "0/1" ie zero
 	for _, token := range postfix {
@@ -170,7 +178,7 @@ func evaluatePostfix(postfix []string) (*big.Rat, error) {
 // trailing spaces, then splits on spaces
 //
 func tokenise(expr string) []string {
-	spaced := fp_rx.ReplaceAllString(expr, " ${1} ")
+	spaced := tokenize_regex.ReplaceAllString(expr, " ${1} ")
 	symbols := []string{"(", ")"}
 	for _, symbol := range symbols {
 		spaced = strings.Replace(spaced, symbol, fmt.Sprintf(" %s ", symbol), -1)
@@ -195,7 +203,12 @@ func Eval(expr string) (result *big.Rat, err error) {
 
 	tokens := tokenise(expr)
 	postfix := convert2postfix(tokens)
-	return evaluatePostfix(postfix)
+	return EvaluatePostfix(postfix)
+}
+
+func GetPostfix(expr string) []string {
+	tokens := tokenise(expr)
+	return convert2postfix(tokens)
 }
 
 // BigratToInt converts a *big.Rat to an int64 (with truncation); it
