@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"scim/evaler/stack"
+	"github.com/howeyc/sc/evaler/stack"
 )
 
 var whitespace_rx = regexp.MustCompile(`\s+`)

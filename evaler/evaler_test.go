@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	"scim/evaler"
+	"github.com/howeyc/sc/evaler"
 )
 
 // -----------------------------------------------------------------------------

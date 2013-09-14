@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"scim/sheet"
-
+	"github.com/howeyc/sc/sheet"
 	"github.com/nsf/termbox-go"
 )
 

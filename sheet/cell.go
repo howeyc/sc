@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
-	"scim/display"
-	"scim/evaler"
-	"scim/sheet/align"
+	"github.com/howeyc/sc/display"
+	"github.com/howeyc/sc/evaler"
+	"github.com/howeyc/sc/sheet/align"
 )
 
 type Cell struct {

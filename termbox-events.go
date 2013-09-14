@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"scim/display"
-	"scim/sheet"
-	"scim/sheet/align"
-
+	"github.com/howeyc/sc/display"
+	"github.com/howeyc/sc/sheet"
+	"github.com/howeyc/sc/sheet/align"
 	"github.com/nsf/termbox-go"
 )
 

@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"scim/evaler"
-	"scim/sheet/align"
+	"github.com/howeyc/sc/evaler"
+	"github.com/howeyc/sc/sheet/align"
 )
 
 var columnArr []string

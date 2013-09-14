@@ -4,9 +4,8 @@ package sheet
 import (
 	"fmt"
 
-	"scim/display"
-	"scim/sheet/align"
-
+	"github.com/howeyc/sc/display"
+	"github.com/howeyc/sc/sheet/align"
 	"github.com/nsf/termbox-go"
 )
 

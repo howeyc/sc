@@ -5,8 +5,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"scim/sheet/align"
-
+	"github.com/howeyc/sc/sheet/align"
 	"github.com/nsf/termbox-go"
 )
 
