@@ -124,9 +124,9 @@ func processTermboxEvents(s *sheet.Sheet) {
 				return
 			case YANK_MODE:
 				if ev.Key == 0 && ev.Ch == 'r' {
-
+					// TODO
 				} else if ev.Key == 0 && ev.Ch == 'c' {
-
+					// TODO
 				} else if ev.Key == termbox.KeyEsc {
 
 				}
