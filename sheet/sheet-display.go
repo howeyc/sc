@@ -28,9 +28,11 @@ func (s *Sheet) display() {
 	}
 	startDispColumn := x
 	displayColumns := 0
-	for column := s.startCol; x+s.getColumnWidth(columnArr[column]) < displayWidth; column++ {
-		display.DisplayValue(columnArr[column], DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnArr[column]), align.AlignCenter, true)
-		x += s.getColumnWidth(columnArr[column])
+	columnAddr := getAddress(0, s.startCol)
+	for column := s.startCol; x+s.getColumnWidth(columnAddr.ColumnHeader()) < displayWidth; column++ {
+		columnAddr = getAddress(0, column)
+		display.DisplayValue(columnAddr.ColumnHeader(), DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnAddr.ColumnHeader()), align.AlignCenter, true)
+		x += s.getColumnWidth(columnAddr.ColumnHeader())
 		displayColumns = column - s.startCol + 1
 	}
 
@@ -48,14 +50,15 @@ func (s *Sheet) display() {
 		valCol := column + s.startCol
 		for row := 0; row < displayRows; row++ {
 			valRow := row + s.startRow
-			address := fmt.Sprintf("%s%d", columnArr[valCol], valRow)
+			address := getAddress(valRow, valCol)
 			if cell, err := s.GetCell(address); err == nil {
-				cell.display(s, address, row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), s.SelectedCell == address)
+				cell.display(s, address, row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(address.ColumnHeader()), s.SelectedCell == address)
 			} else {
-				display.DisplayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(columnArr[valCol]), align.AlignLeft, false)
+				display.DisplayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(address.ColumnHeader()), align.AlignLeft, false)
 			}
 		}
-		termCol += s.getColumnWidth(columnArr[valCol])
+		columnAddr := getAddress(0, valCol)
+		termCol += s.getColumnWidth(columnAddr.ColumnHeader())
 	}
 	s.displayRows, s.displayCols = displayRows, displayColumns
 }

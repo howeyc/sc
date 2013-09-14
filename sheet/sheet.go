@@ -13,32 +13,6 @@ import (
 	"github.com/howeyc/sc/sheet/align"
 )
 
-var columnArr []string
-
-func init() {
-	columnArr = make([]string, 26)
-	columnArr[0] = "A"
-	columnArr[1] = "B"
-	columnArr[2] = "C"
-	columnArr[3] = "D"
-	columnArr[4] = "E"
-	columnArr[5] = "F"
-	columnArr[6] = "G"
-	columnArr[7] = "H"
-	columnArr[8] = "I"
-	columnArr[9] = "J"
-	columnArr[10] = "K"
-	columnArr[11] = "L"
-	columnArr[12] = "M"
-	columnArr[13] = "N"
-	columnArr[14] = "O"
-	columnArr[15] = "P"
-	columnArr[16] = "Q"
-	columnArr[17] = "R"
-	columnArr[18] = "S"
-	columnArr[19] = "T"
-}
-
 const (
 	STARTING_COLUMN_WIDTH = 10
 )
@@ -52,9 +26,14 @@ type ColumnFormat struct {
 type Sheet struct {
 	Filename string
 
-	SelectedCell  string
+	SelectedCell  Address
 	columnFormats map[string]ColumnFormat
-	data          map[string]*Cell
+	data          map[Address]*Cell
+
+	maxRowForColumn map[string]int
+	maxColumnForRow map[int]string
+
+	clipboardRangeStart, clipboardRangeEnd string
 
 	// display window
 	startRow, startCol       int
@@ -62,7 +41,7 @@ type Sheet struct {
 }
 
 func NewSheet(filename string) Sheet {
-	s := Sheet{Filename: filename, SelectedCell: "A0", columnFormats: make(map[string]ColumnFormat), data: make(map[string]*Cell)}
+	s := Sheet{Filename: filename, SelectedCell: "A0", columnFormats: make(map[string]ColumnFormat), data: make(map[Address]*Cell)}
 
 	// Load file
 	if file, err := os.Open(filename); err == nil {
@@ -74,11 +53,11 @@ func NewSheet(filename string) Sheet {
 			}
 			words := strings.Split(line, " ")
 			cmd := ""
-			adrs := ""
+			adrs := Address("")
 			val := ""
 			if len(words) >= 2 {
 				cmd = words[0]
-				adrs = words[1]
+				adrs = Address(words[1])
 			}
 			if len(words) >= 4 {
 				val = strings.Join(words[3:], " ")
@@ -88,20 +67,20 @@ func NewSheet(filename string) Sheet {
 			}
 			switch cmd {
 			case "leftstring":
-				s.SetCell(adrs, &Cell{stringType: true, alignment: align.AlignLeft, value: val})
+				s.SetCell(adrs, NewCell(val, align.AlignLeft, true))
 			case "rightstrng":
-				s.SetCell(adrs, &Cell{stringType: true, alignment: align.AlignRight, value: val})
+				s.SetCell(adrs, NewCell(val, align.AlignRight, true))
 			case "label":
-				s.SetCell(adrs, &Cell{stringType: true, alignment: align.AlignCenter, value: val})
+				s.SetCell(adrs, NewCell(val, align.AlignCenter, true))
 			case "let":
-				s.SetCell(adrs, &Cell{stringType: false, alignment: align.AlignRight, value: val})
+				s.SetCell(adrs, NewCell(val, align.AlignRight, false))
 			case "goto":
 				s.SelectedCell = adrs
 			case "format":
 				width, _ := strconv.ParseInt(words[2], 10, 64)
 				precision, _ := strconv.ParseInt(words[3], 10, 64)
 				ctype, _ := strconv.ParseInt(words[4], 10, 64)
-				s.columnFormats[adrs] = ColumnFormat{width: int(width), precision: int(precision), ctype: int(ctype)}
+				s.columnFormats[adrs.ColumnHeader()] = ColumnFormat{width: int(width), precision: int(precision), ctype: int(ctype)}
 			}
 		}
 	}
@@ -115,18 +94,16 @@ func (s *Sheet) writeFormats(w io.Writer) {
 	}
 }
 
-func (s *Sheet) getPrecision(address string) int {
-	column := address[1:]
-	if cFormat, found := s.columnFormats[column]; found {
+func (s *Sheet) getPrecision(address Address) int {
+	if cFormat, found := s.columnFormats[address.ColumnHeader()]; found {
 		return cFormat.precision
 	} else {
 		return 2
 	}
 }
 
-func (s *Sheet) DisplayFormat(address string) string {
-	column := address[1:]
-	if cFormat, found := s.columnFormats[column]; found {
+func (s *Sheet) DisplayFormat(address Address) string {
+	if cFormat, found := s.columnFormats[address.ColumnHeader()]; found {
 		return fmt.Sprintf("%d %d %d", cFormat.width, cFormat.precision, cFormat.ctype)
 	} else {
 		return fmt.Sprintf("%d %d %d", STARTING_COLUMN_WIDTH, 2, 0)
@@ -162,7 +139,7 @@ func (s *Sheet) decreaseColumnWidth(column string) {
 	}
 }
 
-func (s *Sheet) ClearCell(address string) {
+func (s *Sheet) ClearCell(address Address) {
 	if cell, err := s.GetCell(address); err == nil {
 		for forRef, _ := range cell.forwardRefs {
 			if forCell, forErr := s.GetCell(forRef); forErr == nil {
@@ -173,7 +150,7 @@ func (s *Sheet) ClearCell(address string) {
 	delete(s.data, address)
 }
 
-func (s *Sheet) GetCell(address string) (*Cell, error) {
+func (s *Sheet) GetCell(address Address) (*Cell, error) {
 	if cell, found := s.data[address]; found {
 		return cell, nil
 	} else if address == s.SelectedCell {
@@ -182,7 +159,7 @@ func (s *Sheet) GetCell(address string) (*Cell, error) {
 	return nil, errors.New("Cell does not exist in spreadsheet.")
 }
 
-func (s *Sheet) SetCell(address string, cell *Cell) {
+func (s *Sheet) SetCell(address Address, cell *Cell) {
 	if currentCell, found := s.data[address]; found {
 		cell.backRefs = currentCell.backRefs
 	}
@@ -190,8 +167,9 @@ func (s *Sheet) SetCell(address string, cell *Cell) {
 		postfix := evaler.GetPostfix(cell.value)
 		for _, token := range postfix {
 			if evaler.IsCellAddr(token) {
-				cell.forwardRefs[token] = struct{}{}
-				if tokCell, tokErr := s.GetCell(token); tokErr == nil {
+				tokenAddr := Address(token)
+				cell.forwardRefs[tokenAddr] = struct{}{}
+				if tokCell, tokErr := s.GetCell(tokenAddr); tokErr == nil {
 					tokCell.backRefs[address] = struct{}{}
 				}
 			}
@@ -212,7 +190,7 @@ func (s *Sheet) Save() error {
 		s.writeFormats(outfile)
 
 		for addr, cell := range s.data {
-			cell.write(outfile, addr)
+			cell.write(outfile, string(addr))
 		}
 		fmt.Fprintf(outfile, "goto %s A0", s.SelectedCell)
 		outfile.Close()

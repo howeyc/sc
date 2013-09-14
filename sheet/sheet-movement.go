@@ -1,16 +1,9 @@
 // sheet-movement
 package sheet
 
-import (
-	"fmt"
-	"strconv"
-)
-
 func (s *Sheet) MoveUp() {
 	sel := s.SelectedCell
-	colStr := sel[:1]
-	rowStr := sel[1:]
-	row, _ := strconv.ParseInt(rowStr, 10, 64)
+	row, colIdx := sel.RowCol()
 	row--
 	if row < 0 {
 		row = 0
@@ -18,17 +11,15 @@ func (s *Sheet) MoveUp() {
 	if int(row) < s.startRow {
 		s.startRow = int(row)
 	}
-	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = getAddress(row, colIdx)
 	s.display()
 }
 
 func (s *Sheet) MoveDown() {
 	sel := s.SelectedCell
-	colStr := sel[:1]
-	rowStr := sel[1:]
-	row, _ := strconv.ParseInt(rowStr, 10, 64)
+	row, colIdx := sel.RowCol()
 	row++
-	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = getAddress(row, colIdx)
 	if (int(row)-s.startRow)+1 > s.displayRows {
 		s.startRow++
 	}
@@ -37,31 +28,18 @@ func (s *Sheet) MoveDown() {
 
 func (s *Sheet) MoveRight() {
 	sel := s.SelectedCell
-	colStr := sel[:1]
-	rowStr := sel[1:]
-	row, _ := strconv.ParseInt(rowStr, 10, 64)
-	colIdx := 0
-	for columnArr[colIdx] != colStr {
-		colIdx++
-	}
+	row, colIdx := sel.RowCol()
 	colIdx++
 	if (colIdx-s.startCol)+1 > s.displayCols {
 		s.startCol++
 	}
-	colStr = columnArr[colIdx]
-	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = getAddress(row, colIdx)
 	s.display()
 }
 
 func (s *Sheet) MoveLeft() {
 	sel := s.SelectedCell
-	colStr := sel[:1]
-	rowStr := sel[1:]
-	row, _ := strconv.ParseInt(rowStr, 10, 64)
-	colIdx := 0
-	for columnArr[colIdx] != colStr {
-		colIdx++
-	}
+	row, colIdx := sel.RowCol()
 	colIdx--
 	if colIdx < 0 {
 		colIdx = 0
@@ -69,7 +47,6 @@ func (s *Sheet) MoveLeft() {
 	if colIdx < s.startCol {
 		s.startCol = colIdx
 	}
-	colStr = columnArr[colIdx]
-	s.SelectedCell = fmt.Sprintf("%s%d", colStr, row)
+	s.SelectedCell = getAddress(row, colIdx)
 	s.display()
 }

@@ -18,6 +18,7 @@ const (
 	NORMAL_MODE SheetMode = iota
 	INSERT_MODE SheetMode = iota
 	EXIT_MODE   SheetMode = iota
+	YANK_MODE   SheetMode = iota
 )
 
 func processTermboxEvents(s *sheet.Sheet) {
@@ -38,6 +39,8 @@ func processTermboxEvents(s *sheet.Sheet) {
 				display.DisplayValue(fmt.Sprintf("i> %s %s = %s", prompt, s.SelectedCell, valBuffer.String()), 0, 0, 80, align.AlignLeft, false)
 			case EXIT_MODE:
 				display.DisplayValue(fmt.Sprintf("File \"%s\" is modified, save before exiting?", s.Filename), 0, 0, 80, align.AlignLeft, false)
+			case YANK_MODE:
+				display.DisplayValue("Yank row/column:  r: row  c: column", 0, 0, 80, align.AlignLeft, false)
 			}
 			termbox.Flush()
 		}
@@ -119,6 +122,14 @@ func processTermboxEvents(s *sheet.Sheet) {
 				}
 				termbox.Close()
 				return
+			case YANK_MODE:
+				if ev.Key == 0 && ev.Ch == 'r' {
+
+				} else if ev.Key == 0 && ev.Ch == 'c' {
+
+				} else if ev.Key == termbox.KeyEsc {
+
+				}
 			}
 		}
 	}

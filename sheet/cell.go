@@ -15,21 +15,22 @@ type Cell struct {
 	stringType bool
 	alignment  align.Align
 
-	forwardRefs map[string]struct{} // Cells that are required for any formula
-	backRefs    map[string]struct{} // Cells that reference this cell's value
+	forwardRefs map[Address]struct{} // Cells that are required for any formula
+	backRefs    map[Address]struct{} // Cells that reference this cell's value
 }
 
 func NewCell(value string, alignment align.Align, stringType bool) *Cell {
-	return &Cell{value: value, alignment: alignment, stringType: stringType}
+	return &Cell{value: value, alignment: alignment, stringType: stringType,
+		forwardRefs: make(map[Address]struct{}), backRefs: make(map[Address]struct{})}
 }
 
-func (c *Cell) getDisplayValue(s *Sheet, address string) string {
+func (c *Cell) getDisplayValue(s *Sheet, address Address) string {
 	postfix := evaler.GetPostfix(c.value)
 	for idx, token := range postfix {
 		if evaler.IsCellAddr(token) {
 			refCellVal := ""
-			if cell, err := s.GetCell(token); err == nil {
-				refCellVal = cell.getDisplayValue(s, token)
+			if cell, err := s.GetCell(Address(token)); err == nil {
+				refCellVal = cell.getDisplayValue(s, Address(token))
 			}
 			postfix[idx] = refCellVal
 		}
@@ -41,7 +42,7 @@ func (c *Cell) getDisplayValue(s *Sheet, address string) string {
 	}
 }
 
-func (c *Cell) display(s *Sheet, address string, row, colStart, colEnd int, selected bool) {
+func (c *Cell) display(s *Sheet, address Address, row, colStart, colEnd int, selected bool) {
 	dispVal := c.value
 	if !c.stringType {
 		dispVal = c.getDisplayValue(s, address)
