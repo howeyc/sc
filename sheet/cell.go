@@ -4,6 +4,7 @@ package sheet
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/howeyc/sc/display"
 	"github.com/howeyc/sc/evaler"
@@ -22,6 +23,20 @@ type Cell struct {
 func NewCell(value string, alignment align.Align, stringType bool) *Cell {
 	return &Cell{value: value, alignment: alignment, stringType: stringType,
 		forwardRefs: make(map[Address]struct{}), backRefs: make(map[Address]struct{})}
+}
+
+func (c *Cell) Copy(oldAddress, newAddress Address) *Cell {
+	val := c.value
+	if !c.stringType {
+		rowDiff := newAddress.Row() - oldAddress.Row()
+		colDiff := newAddress.Column() - oldAddress.Column()
+		for forRef, _ := range c.forwardRefs {
+			refRow, refCol := forRef.RowCol()
+			newRef := getAddress(refRow+rowDiff, refCol+colDiff)
+			val = strings.Replace(val, string(forRef), string(newRef), -1)
+		}
+	}
+	return NewCell(val, c.alignment, c.stringType)
 }
 
 func (c *Cell) getDisplayValue(s *Sheet, address Address) string {

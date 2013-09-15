@@ -30,10 +30,10 @@ type Sheet struct {
 	columnFormats map[string]ColumnFormat
 	data          map[Address]*Cell
 
-	maxRowForColumn map[string]int
-	maxColumnForRow map[int]string
+	maxRowForColumn map[int]int
+	maxColumnForRow map[int]int
 
-	clipboardRangeStart, clipboardRangeEnd string
+	clipboardRangeStart, clipboardRangeEnd Address
 
 	// display window
 	startRow, startCol       int
@@ -41,7 +41,9 @@ type Sheet struct {
 }
 
 func NewSheet(filename string) Sheet {
-	s := Sheet{Filename: filename, SelectedCell: "A0", columnFormats: make(map[string]ColumnFormat), data: make(map[Address]*Cell)}
+	s := Sheet{Filename: filename, SelectedCell: "A0",
+		columnFormats: make(map[string]ColumnFormat), data: make(map[Address]*Cell),
+		maxRowForColumn: make(map[int]int), maxColumnForRow: make(map[int]int)}
 
 	// Load file
 	if file, err := os.Open(filename); err == nil {
@@ -148,6 +150,8 @@ func (s *Sheet) ClearCell(address Address) {
 		}
 	}
 	delete(s.data, address)
+
+	s.findMaximums(address)
 }
 
 func (s *Sheet) GetCell(address Address) (*Cell, error) {
@@ -177,6 +181,8 @@ func (s *Sheet) SetCell(address Address, cell *Cell) {
 	}
 	s.data[address] = cell
 
+	s.setMaximums(address)
+
 	// TODO: change to display current cell and all back references
 	s.display()
 }
@@ -197,5 +203,45 @@ func (s *Sheet) Save() error {
 		return nil
 	} else {
 		return err
+	}
+}
+
+func (s *Sheet) setMaximums(address Address) {
+	row, col := address.RowCol()
+
+	currRowMax := s.maxRowForColumn[col]
+	if row > currRowMax {
+		s.maxRowForColumn[col] = row
+	}
+
+	currColMax := s.maxColumnForRow[row]
+	if col > currColMax {
+		s.maxColumnForRow[row] = col
+	}
+}
+
+func (s *Sheet) findMaximums(address Address) {
+	row, column := address.RowCol()
+
+	currColMax := s.maxColumnForRow[row]
+	if column == currColMax {
+		// Find lower column used on row
+		delete(s.maxColumnForRow, row)
+		for colIdx := column; colIdx >= 0; colIdx-- {
+			if _, found := s.data[getAddress(row, colIdx)]; found {
+				s.maxColumnForRow[row] = colIdx
+			}
+		}
+	}
+
+	currRowMax := s.maxRowForColumn[column]
+	if row == currRowMax {
+		// Find lower row used for column
+		delete(s.maxRowForColumn, column)
+		for rowIdx := row; rowIdx >= 0; rowIdx-- {
+			if _, found := s.data[getAddress(rowIdx, column)]; found {
+				s.maxRowForColumn[column] = rowIdx
+			}
+		}
 	}
 }

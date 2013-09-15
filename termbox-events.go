@@ -19,6 +19,7 @@ const (
 	INSERT_MODE SheetMode = iota
 	EXIT_MODE   SheetMode = iota
 	YANK_MODE   SheetMode = iota
+	PUT_MODE    SheetMode = iota
 )
 
 func processTermboxEvents(s *sheet.Sheet) {
@@ -41,6 +42,8 @@ func processTermboxEvents(s *sheet.Sheet) {
 				display.DisplayValue(fmt.Sprintf("File \"%s\" is modified, save before exiting?", s.Filename), 0, 0, 80, align.AlignLeft, false)
 			case YANK_MODE:
 				display.DisplayValue("Yank row/column:  r: row  c: column", 0, 0, 80, align.AlignLeft, false)
+			case PUT_MODE:
+				display.DisplayValue("Put row/column:  r: row  c: column", 0, 0, 80, align.AlignLeft, false)
 			}
 			termbox.Flush()
 		}
@@ -94,6 +97,10 @@ func processTermboxEvents(s *sheet.Sheet) {
 						s.MoveRight()
 					case 'x':
 						s.ClearCell(s.SelectedCell)
+					case 'y':
+						smode = YANK_MODE
+					case 'p':
+						smode = PUT_MODE
 					}
 				}
 			case INSERT_MODE:
@@ -124,12 +131,19 @@ func processTermboxEvents(s *sheet.Sheet) {
 				return
 			case YANK_MODE:
 				if ev.Key == 0 && ev.Ch == 'r' {
-					// TODO
+					s.YankRow()
 				} else if ev.Key == 0 && ev.Ch == 'c' {
-					// TODO
-				} else if ev.Key == termbox.KeyEsc {
-
+					s.YankColumn()
 				}
+				smode = NORMAL_MODE
+
+			case PUT_MODE:
+				if ev.Key == 0 && ev.Ch == 'r' {
+					s.PutRow()
+				} else if ev.Key == 0 && ev.Ch == 'c' {
+					s.PutColumn()
+				}
+				smode = NORMAL_MODE
 			}
 		}
 	}
