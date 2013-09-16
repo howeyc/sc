@@ -9,6 +9,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// Displays a value into a specified space on the termbox window.
 func DisplayValue(val string, row, colStart, colEnd int, alignment align.Align, inverse bool) {
 	fg, bg := termbox.ColorWhite, termbox.ColorBlack
 	if inverse {

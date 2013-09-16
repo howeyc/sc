@@ -18,6 +18,7 @@ func main() {
 
 	flag.Parse()
 
+	// For now, only argument is sheet file name.
 	sheet := sheet.NewSheet(flag.Arg(0))
 
 	processTermboxEvents(&sheet)

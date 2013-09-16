@@ -1,20 +1,23 @@
 // sheet-commands
 package sheet
 
+// Yanks the row of the selected cell.
 func (s *Sheet) YankRow() {
 	row := s.SelectedCell.Row()
 
-	s.clipboardRangeStart = getAddress(row, 0)
-	s.clipboardRangeEnd = getAddress(row, s.maxColumnForRow[row])
+	s.clipboardRangeStart = NewAddress(row, 0)
+	s.clipboardRangeEnd = NewAddress(row, s.maxColumnForRow[row])
 }
 
+// Yanks the column of the selected cell.
 func (s *Sheet) YankColumn() {
 	column := s.SelectedCell.Column()
 
-	s.clipboardRangeStart = getAddress(0, column)
-	s.clipboardRangeEnd = getAddress(s.maxRowForColumn[column], column)
+	s.clipboardRangeStart = NewAddress(0, column)
+	s.clipboardRangeEnd = NewAddress(s.maxRowForColumn[column], column)
 }
 
+// Puts the sheet's clipboard to the selected cell's row.
 func (s *Sheet) PutRow() {
 	row := s.SelectedCell.Row()
 
@@ -23,13 +26,14 @@ func (s *Sheet) PutRow() {
 	colEnd := s.clipboardRangeEnd.Column()
 
 	for colIdx := colStart; colIdx <= colEnd; colIdx++ {
-		if srcCell, err := s.GetCell(getAddress(rowSrc, colIdx)); err == nil {
-			s.SetCell(getAddress(row, colIdx), srcCell.Copy(getAddress(rowSrc, colIdx), getAddress(row, colIdx)))
+		if srcCell, err := s.GetCell(NewAddress(rowSrc, colIdx)); err == nil {
+			s.SetCell(NewAddress(row, colIdx), srcCell.Copy(NewAddress(rowSrc, colIdx), NewAddress(row, colIdx)))
 		}
 
 	}
 }
 
+// Puts the sheet's clipboard the the selected cell's column.
 func (s *Sheet) PutColumn() {
 	column := s.SelectedCell.Column()
 
@@ -38,8 +42,8 @@ func (s *Sheet) PutColumn() {
 	rowEnd := s.clipboardRangeEnd.Column()
 
 	for rowIdx := rowStart; rowIdx <= rowEnd; rowIdx++ {
-		if srcCell, err := s.GetCell(getAddress(rowIdx, colSrc)); err == nil {
-			s.SetCell(getAddress(rowIdx, column), srcCell.Copy(getAddress(rowIdx, colSrc), getAddress(rowIdx, colSrc)))
+		if srcCell, err := s.GetCell(NewAddress(rowIdx, colSrc)); err == nil {
+			s.SetCell(NewAddress(rowIdx, column), srcCell.Copy(NewAddress(rowIdx, colSrc), NewAddress(rowIdx, colSrc)))
 		}
 
 	}

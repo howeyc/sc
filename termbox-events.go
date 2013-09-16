@@ -22,6 +22,9 @@ const (
 	PUT_MODE    SheetMode = iota
 )
 
+// Processes all the key strokes from termbox.
+//
+// Also refreshes the two top rows the the display. The status bar and the command row.
 func processTermboxEvents(s *sheet.Sheet) {
 	prompt := ""
 	stringEntry := false

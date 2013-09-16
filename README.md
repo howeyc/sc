@@ -18,7 +18,3 @@ Essentially this allows me to view/edit sc files on a Windows machine.
 * Delete (clear) cell: x
 * Commands: (y)ank, (p)ut
 * Quit: q
-
-## TODO
-
-* Functions for expressions.

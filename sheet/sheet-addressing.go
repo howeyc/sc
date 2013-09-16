@@ -11,6 +11,7 @@ type Address string
 
 var re_addr = regexp.MustCompile(`([A-Z]+)(\d+)`)
 
+// Splits an address into row and column strings.
 func (addr Address) Split() (row, column string) {
 	parts := re_addr.FindStringSubmatch(string(addr))
 
@@ -21,6 +22,9 @@ func (addr Address) Split() (row, column string) {
 	return
 }
 
+// Returns the integer value of the given address.
+//
+// Columns are zero-based, using the letters A-Z, starting with A = 0.
 func (addr Address) Column() int {
 	_, column := addr.Split()
 
@@ -35,11 +39,13 @@ func (addr Address) Column() int {
 	return int(col) - 1
 }
 
+// Returns the column portion of the address as a string.
 func (addr Address) ColumnHeader() string {
 	_, column := addr.Split()
 	return column
 }
 
+// Returns the row portion of the address as an integer.
 func (addr Address) Row() int {
 	rowStr, _ := addr.Split()
 
@@ -47,11 +53,13 @@ func (addr Address) Row() int {
 	return int(row)
 }
 
+// Returns the row and column of the address as integers.
 func (addr Address) RowCol() (row, column int) {
 	return addr.Row(), addr.Column()
 }
 
-func getAddress(row, column int) Address {
+// Creates and address given an integer row and column.
+func NewAddress(row, column int) Address {
 	column += 10
 	return Address(strings.ToUpper(strconv.FormatInt(int64(column), 36)) + strconv.FormatInt(int64(row), 10))
 }

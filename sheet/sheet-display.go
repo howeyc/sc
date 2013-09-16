@@ -15,6 +15,9 @@ const (
 	DISPLAY_SHEET_START_ROW  = 2
 )
 
+// Display a window of the sheet using termbox.
+//
+// The top-left changes based on where in the sheet the selected cell is moved by movement commands.
 func (s *Sheet) display() {
 	defer termbox.Flush()
 	displayWidth, displayHeight := termbox.Size()
@@ -28,9 +31,9 @@ func (s *Sheet) display() {
 	}
 	startDispColumn := x
 	displayColumns := 0
-	columnAddr := getAddress(0, s.startCol)
+	columnAddr := NewAddress(0, s.startCol)
 	for column := s.startCol; x+s.getColumnWidth(columnAddr.ColumnHeader()) < displayWidth; column++ {
-		columnAddr = getAddress(0, column)
+		columnAddr = NewAddress(0, column)
 		display.DisplayValue(columnAddr.ColumnHeader(), DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnAddr.ColumnHeader()), align.AlignCenter, true)
 		x += s.getColumnWidth(columnAddr.ColumnHeader())
 		displayColumns = column - s.startCol + 1
@@ -50,14 +53,14 @@ func (s *Sheet) display() {
 		valCol := column + s.startCol
 		for row := 0; row < displayRows; row++ {
 			valRow := row + s.startRow
-			address := getAddress(valRow, valCol)
+			address := NewAddress(valRow, valCol)
 			if cell, err := s.GetCell(address); err == nil {
 				cell.display(s, address, row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(address.ColumnHeader()), s.SelectedCell == address)
 			} else {
 				display.DisplayValue("", row+DISPLAY_SHEET_START_ROW+1, termCol, termCol+s.getColumnWidth(address.ColumnHeader()), align.AlignLeft, false)
 			}
 		}
-		columnAddr := getAddress(0, valCol)
+		columnAddr := NewAddress(0, valCol)
 		termCol += s.getColumnWidth(columnAddr.ColumnHeader())
 	}
 	s.displayRows, s.displayCols = displayRows, displayColumns
