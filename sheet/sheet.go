@@ -1,3 +1,4 @@
+// Implements functions required commands on a sheet.
 package sheet
 
 import (

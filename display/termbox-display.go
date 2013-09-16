@@ -1,4 +1,3 @@
-// termbox-display
 package display
 
 import (

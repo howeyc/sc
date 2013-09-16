@@ -1,4 +1,3 @@
-// sheet-movement
 package sheet
 
 // Move selected cell up on row.

@@ -1,4 +1,3 @@
-// sheet-commands
 package sheet
 
 // Yanks the row of the selected cell.

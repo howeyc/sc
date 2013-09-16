@@ -1,4 +1,3 @@
-// sheet-addressing
 package sheet
 
 import (

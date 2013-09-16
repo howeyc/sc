@@ -1,4 +1,3 @@
-// cell
 package sheet
 
 import (

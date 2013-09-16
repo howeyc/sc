@@ -1,4 +1,3 @@
-// sheet-display
 package sheet
 
 import (

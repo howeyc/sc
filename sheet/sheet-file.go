@@ -1,4 +1,3 @@
-// sheet-file.go
 package sheet
 
 import (
