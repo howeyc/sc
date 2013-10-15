@@ -161,6 +161,10 @@ func processTermboxEvents(s *sheet.Sheet) {
 					s.DecreaseColumnWidth(s.SelectedCell.ColumnHeader())
 				case termbox.KeyArrowRight:
 					s.IncreaseColumnWidth(s.SelectedCell.ColumnHeader())
+				case termbox.KeyArrowDown:
+					s.DecreaseColumnPrecision(s.SelectedCell.ColumnHeader())
+				case termbox.KeyArrowUp:
+					s.IncreaseColumnPrecision(s.SelectedCell.ColumnHeader())
 				case 0:
 					switch ev.Ch {
 					case 'q':
@@ -169,6 +173,10 @@ func processTermboxEvents(s *sheet.Sheet) {
 						s.DecreaseColumnWidth(s.SelectedCell.ColumnHeader())
 					case '>', 'l':
 						s.IncreaseColumnWidth(s.SelectedCell.ColumnHeader())
+					case '-', 'j':
+						s.DecreaseColumnPrecision(s.SelectedCell.ColumnHeader())
+					case '+', 'k':
+						s.IncreaseColumnPrecision(s.SelectedCell.ColumnHeader())
 					}
 				}
 

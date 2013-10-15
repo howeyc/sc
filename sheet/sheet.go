@@ -57,6 +57,31 @@ func (s *Sheet) getPrecision(address Address) int {
 	}
 }
 
+// For a given column header string, decreases column precision.
+func (s *Sheet) DecreaseColumnPrecision(column string) {
+	if cFormat, found := s.columnFormats[column]; found {
+		cFormat.precision--
+		if cFormat.precision < 0 {
+			cFormat.precision = 0
+		}
+		s.columnFormats[column] = cFormat
+	} else {
+		s.columnFormats[column] = ColumnFormat{width: initial_COLUMN_WIDTH, precision: initial_COLUMN_PRECISION - 1, ctype: initial_COLUMN_TYPE}
+	}
+	s.display()
+}
+
+// For a given column header string, increases column precision.
+func (s *Sheet) IncreaseColumnPrecision(column string) {
+	if cFormat, found := s.columnFormats[column]; found {
+		cFormat.precision++
+		s.columnFormats[column] = cFormat
+	} else {
+		s.columnFormats[column] = ColumnFormat{width: initial_COLUMN_WIDTH, precision: initial_COLUMN_PRECISION + 1, ctype: initial_COLUMN_TYPE}
+	}
+	s.display()
+}
+
 // Returns the the display format string specifying the Width, Precition, and Type
 // of the column.
 func (s *Sheet) DisplayFormat(address Address) string {
