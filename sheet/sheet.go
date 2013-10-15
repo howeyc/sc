@@ -77,6 +77,31 @@ func (s *Sheet) getColumnWidth(column string) int {
 	}
 }
 
+// For a given column header string, decreases column width.
+func (s *Sheet) DecreaseColumnWidth(column string) {
+	if cFormat, found := s.columnFormats[column]; found {
+		cFormat.width--
+		if cFormat.width < 1 {
+			cFormat.width = 1
+		}
+		s.columnFormats[column] = cFormat
+	} else {
+		s.columnFormats[column] = ColumnFormat{width: initial_COLUMN_WIDTH - 1, precision: initial_COLUMN_PRECISION, ctype: initial_COLUMN_TYPE}
+	}
+	s.display()
+}
+
+// For a given column header string, increases column width.
+func (s *Sheet) IncreaseColumnWidth(column string) {
+	if cFormat, found := s.columnFormats[column]; found {
+		cFormat.width++
+		s.columnFormats[column] = cFormat
+	} else {
+		s.columnFormats[column] = ColumnFormat{width: initial_COLUMN_WIDTH + 1, precision: initial_COLUMN_PRECISION, ctype: initial_COLUMN_TYPE}
+	}
+	s.display()
+}
+
 // Removes the cell at the given address from a sheet.
 func (s *Sheet) ClearCell(address Address) {
 	if cell, err := s.GetCell(address); err == nil {

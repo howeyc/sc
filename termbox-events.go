@@ -20,6 +20,7 @@ const (
 	EXIT_MODE   SheetMode = iota
 	YANK_MODE   SheetMode = iota
 	PUT_MODE    SheetMode = iota
+	FORMAT_MODE SheetMode = iota
 )
 
 // Processes all the key strokes from termbox.
@@ -36,6 +37,9 @@ func processTermboxEvents(s *sheet.Sheet) {
 	go func() {
 		for _ = range time.Tick(200 * time.Millisecond) {
 			switch smode {
+			case FORMAT_MODE:
+				display.DisplayValue(fmt.Sprintf("Current format is %s", s.DisplayFormat(s.SelectedCell)), 1, 0, 80, align.AlignLeft, false)
+				fallthrough
 			case NORMAL_MODE:
 				selSel, _ := s.GetCell(s.SelectedCell)
 				display.DisplayValue(fmt.Sprintf("%s (%s) [%s]", s.SelectedCell, s.DisplayFormat(s.SelectedCell), selSel.StatusBarVal()), 0, 0, 80, align.AlignLeft, false)
@@ -104,6 +108,8 @@ func processTermboxEvents(s *sheet.Sheet) {
 						smode = YANK_MODE
 					case 'p':
 						smode = PUT_MODE
+					case 'f':
+						smode = FORMAT_MODE
 					}
 				}
 			case INSERT_MODE:
@@ -147,6 +153,29 @@ func processTermboxEvents(s *sheet.Sheet) {
 					s.PutColumn()
 				}
 				smode = NORMAL_MODE
+			case FORMAT_MODE:
+				switch ev.Key {
+				case termbox.KeyEsc, termbox.KeyEnter:
+					smode = NORMAL_MODE
+				case termbox.KeyArrowLeft:
+					s.DecreaseColumnWidth(s.SelectedCell.ColumnHeader())
+				case termbox.KeyArrowRight:
+					s.IncreaseColumnWidth(s.SelectedCell.ColumnHeader())
+				case 0:
+					switch ev.Ch {
+					case 'q':
+						smode = NORMAL_MODE
+					case '<', 'h':
+						s.DecreaseColumnWidth(s.SelectedCell.ColumnHeader())
+					case '>', 'l':
+						s.IncreaseColumnWidth(s.SelectedCell.ColumnHeader())
+					}
+				}
+
+				// Once switched out of format mode, clear the format prompt line.
+				if smode == NORMAL_MODE {
+					display.DisplayValue("", 1, 0, 80, align.AlignLeft, false)
+				}
 			}
 		}
 	}

@@ -17,4 +17,5 @@ Essentially this allows me to view/edit sc files on a Windows machine.
 * Enter insert mode for strings with alignment: < (Left-Aligned), > (Right-Aligned), \ (Centered)
 * Delete (clear) cell: x
 * Commands: (y)ank, (p)ut
+* Set output format for current column: f
 * Quit: q
