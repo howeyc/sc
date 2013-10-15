@@ -49,7 +49,7 @@ func (s *Sheet) Load() {
 				width, _ := strconv.ParseInt(words[2], 10, 64)
 				precision, _ := strconv.ParseInt(words[3], 10, 64)
 				ctype, _ := strconv.ParseInt(words[4], 10, 64)
-				s.columnFormats[adrs.ColumnHeader()] = ColumnFormat{width: int(width), precision: int(precision), ctype: int(ctype)}
+				s.columnFormats[string(adrs)] = ColumnFormat{width: int(width), precision: int(precision), ctype: int(ctype)}
 			}
 		}
 	}
