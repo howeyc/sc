@@ -37,7 +37,7 @@ func (s *Sheet) Load() {
 			switch cmd {
 			case "leftstring":
 				s.SetCell(adrs, NewCell(val, align.AlignLeft, true))
-			case "rightstrng":
+			case "rightstring":
 				s.SetCell(adrs, NewCell(val, align.AlignRight, true))
 			case "label":
 				s.SetCell(adrs, NewCell(val, align.AlignCenter, true))
