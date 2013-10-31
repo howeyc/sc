@@ -16,8 +16,8 @@ import (
 )
 
 var whitespace_rx = regexp.MustCompile(`\s+`)
-var fp_rx = regexp.MustCompile(`(\d+(?:\.\d)?)`) // simple fp number
-var tokenize_regex = regexp.MustCompile(`([A-Z]*\d+(?:\.\d)?)`)
+var fp_rx = regexp.MustCompile(`(\d+(?:\.\d+)?)`) // simple fp number
+var tokenize_regex = regexp.MustCompile(`([A-Z]*\d+(?:\.\d+)?)`)
 var cell_addr = regexp.MustCompile(`([A-Z]+\d+)`)
 var operators = "-+**/<>"
 
