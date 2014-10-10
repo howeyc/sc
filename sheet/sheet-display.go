@@ -25,7 +25,7 @@ func (s *Sheet) display() {
 	displayWidth, displayHeight := termbox.Size()
 
 	// Column Headers
-	rowStr := fmt.Sprintf("% 3d", s.startRow)
+	rowStr := fmt.Sprintf("%3d", s.startRow+displayHeight)
 	x := 0
 	for x <= len(rowStr) {
 		termbox.SetCell(x, DISPLAY_SHEET_START_ROW, ' ', termbox.ColorWhite, termbox.ColorWhite)
@@ -44,7 +44,7 @@ func (s *Sheet) display() {
 	displayRows := 0
 	y := DISPLAY_SHEET_START_ROW + 1
 	for row := s.startRow; y < displayHeight; y++ {
-		rowStr := fmt.Sprintf("% 3d", row)
+		rowStr := fmt.Sprintf("%3d", row)
 		display.DisplayValue(rowStr, y, 0, len(rowStr)-1, align.AlignRight, true)
 		displayRows = row - s.startRow + 1
 		row++
