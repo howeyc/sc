@@ -35,6 +35,8 @@ type Sheet struct {
 	// display window
 	startRow, startCol       int
 	displayRows, displayCols int
+
+	loading bool
 }
 
 // Creates a new sheet and loads a sheet from filename if it exists.

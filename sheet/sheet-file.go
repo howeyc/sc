@@ -14,6 +14,7 @@ import (
 // Load a sheet.
 func (s *Sheet) Load() {
 	if file, err := os.Open(s.Filename); err == nil {
+		s.loading = true
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -52,6 +53,8 @@ func (s *Sheet) Load() {
 				s.columnFormats[string(adrs)] = ColumnFormat{width: int(width), precision: int(precision), ctype: int(ctype)}
 			}
 		}
+		s.loading = false
+		s.display()
 	}
 }
 

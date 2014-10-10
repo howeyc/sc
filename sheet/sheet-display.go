@@ -18,6 +18,9 @@ const (
 //
 // The top-left changes based on where in the sheet the selected cell is moved by movement commands.
 func (s *Sheet) display() {
+	if s.loading {
+		return
+	}
 	defer termbox.Flush()
 	displayWidth, displayHeight := termbox.Size()
 
