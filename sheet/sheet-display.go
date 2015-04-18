@@ -24,6 +24,8 @@ func (s *Sheet) display() {
 	defer termbox.Flush()
 	displayWidth, displayHeight := termbox.Size()
 
+	selectedRow, selectedCol := s.SelectedCell.RowCol()
+
 	// Column Headers
 	rowStr := fmt.Sprintf("%3d", s.startRow+displayHeight)
 	x := 0
@@ -36,7 +38,7 @@ func (s *Sheet) display() {
 	columnAddr := NewAddress(0, s.startCol)
 	for column := s.startCol; x+s.getColumnWidth(columnAddr.ColumnHeader()) < displayWidth; column++ {
 		columnAddr = NewAddress(0, column)
-		display.DisplayValue(columnAddr.ColumnHeader(), DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnAddr.ColumnHeader()), align.AlignCenter, true)
+		display.DisplayValue(columnAddr.ColumnHeader(), DISPLAY_SHEET_START_ROW, x, x+s.getColumnWidth(columnAddr.ColumnHeader()), align.AlignCenter, selectedCol != column)
 		x += s.getColumnWidth(columnAddr.ColumnHeader())
 		displayColumns = column - s.startCol + 1
 	}
@@ -45,7 +47,7 @@ func (s *Sheet) display() {
 	y := DISPLAY_SHEET_START_ROW + 1
 	for row := s.startRow; y < displayHeight; y++ {
 		rowStr := fmt.Sprintf("%3d", row)
-		display.DisplayValue(rowStr, y, 0, len(rowStr)-1, align.AlignRight, true)
+		display.DisplayValue(rowStr, y, 0, len(rowStr)-1, align.AlignRight, selectedRow != row)
 		displayRows = row - s.startRow + 1
 		row++
 	}
