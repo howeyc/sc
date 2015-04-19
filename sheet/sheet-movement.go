@@ -53,3 +53,25 @@ func (s *Sheet) MoveLeft() {
 	s.SelectedCell = NewAddress(row, colIdx)
 	s.display()
 }
+
+// Move to a given address
+func (s *Sheet) GoTo(adrs Address) {
+	curRow, curCol := s.SelectedCell.RowCol()
+	dstRow, dstCol := adrs.RowCol()
+
+	// Move row
+	for rowIdx := curRow; rowIdx < dstRow; rowIdx++ {
+		s.MoveDown()
+	}
+	for rowIdx := curRow; rowIdx > dstRow; rowIdx-- {
+		s.MoveUp()
+	}
+
+	// Move col
+	for colIdx := curCol; colIdx < dstCol; colIdx++ {
+		s.MoveRight()
+	}
+	for colIdx := curCol; colIdx > dstCol; colIdx-- {
+		s.MoveLeft()
+	}
+}

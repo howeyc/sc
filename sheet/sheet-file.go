@@ -45,7 +45,7 @@ func (s *Sheet) Load() {
 			case "let":
 				s.SetCell(adrs, NewCell(val, align.AlignRight, false))
 			case "goto":
-				s.SelectedCell = adrs
+				s.GoTo(adrs)
 			case "format":
 				width, _ := strconv.ParseInt(words[2], 10, 64)
 				precision, _ := strconv.ParseInt(words[3], 10, 64)
@@ -54,7 +54,6 @@ func (s *Sheet) Load() {
 			}
 		}
 		s.loading = false
-		s.display()
 	}
 }
 

@@ -45,7 +45,14 @@ func NewSheet(filename string) Sheet {
 		columnFormats: make(map[string]ColumnFormat), data: make(map[Address]*Cell),
 		maxRowForColumn: make(map[int]int), maxColumnForRow: make(map[int]int)}
 
+	// Run display to get the row and column height of display set inside of sheet.
+	s.display()
+
+	// Load values into sheet and move to selected cell
 	s.Load()
+
+	// Display loaded sheet
+	s.display()
 
 	return s
 }
