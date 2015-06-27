@@ -3,8 +3,9 @@ package sheet
 import (
 	"fmt"
 
-	"github.com/howeyc/sc/display"
-	"github.com/howeyc/sc/sheet/align"
+	"display"
+	"sheet/align"
+
 	"github.com/nsf/termbox-go"
 )
 

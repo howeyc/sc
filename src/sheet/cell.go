@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/howeyc/sc/display"
-	"github.com/howeyc/sc/evaler"
-	"github.com/howeyc/sc/sheet/align"
+	"display"
+	"evaler"
+	"sheet/align"
 )
 
 type Cell struct {

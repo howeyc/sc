@@ -4,7 +4,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/howeyc/sc/sheet/align"
+	"sheet/align"
+
 	"github.com/nsf/termbox-go"
 )
 

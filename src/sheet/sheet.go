@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/howeyc/sc/evaler"
+	"evaler"
 )
 
 const (
