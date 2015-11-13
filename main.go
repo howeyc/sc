@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"sheet"
+	"github.com/howeyc/sc/internal/sheet"
 
 	"github.com/nsf/termbox-go"
 )

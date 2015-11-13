@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"sheet/align"
+	"github.com/howeyc/sc/internal/sheet/align"
 )
 
 // Load a sheet.

@@ -3,8 +3,8 @@ package sheet
 import (
 	"fmt"
 
-	"display"
-	"sheet/align"
+	"github.com/howeyc/sc/internal/display"
+	"github.com/howeyc/sc/internal/sheet/align"
 
 	"github.com/nsf/termbox-go"
 )
