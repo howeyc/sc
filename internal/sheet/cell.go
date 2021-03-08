@@ -15,13 +15,16 @@ type Cell struct {
 	alignment  align.Align
 
 	forwardRefs map[Address]struct{} // Cells that are required for any formula
-	backRefs    map[Address]struct{} // Cells that reference this cell's value
 }
 
 // Creates a new cell.
 func NewCell(value string, alignment align.Align, stringType bool) *Cell {
-	return &Cell{value: value, alignment: alignment, stringType: stringType,
-		forwardRefs: make(map[Address]struct{}), backRefs: make(map[Address]struct{})}
+	return &Cell{
+		value:       value,
+		alignment:   alignment,
+		stringType:  stringType,
+		forwardRefs: make(map[Address]struct{}),
+	}
 }
 
 // Creates a copy of the cell, altering any formula that is contained based on where the

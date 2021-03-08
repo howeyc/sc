@@ -138,13 +138,6 @@ func (s *Sheet) IncreaseColumnWidth(column string) {
 
 // Removes the cell at the given address from a sheet.
 func (s *Sheet) ClearCell(address Address) {
-	if cell, err := s.GetCell(address); err == nil {
-		for forRef, _ := range cell.forwardRefs {
-			if forCell, forErr := s.GetCell(forRef); forErr == nil {
-				delete(forCell.backRefs, forRef)
-			}
-		}
-	}
 	delete(s.data, address)
 
 	s.findMaximums(address)
@@ -162,18 +155,12 @@ func (s *Sheet) GetCell(address Address) (*Cell, error) {
 
 // Sets the address to the passed in cell. Previous cell data that exists is thrown away.
 func (s *Sheet) SetCell(address Address, cell *Cell) {
-	if currentCell, found := s.data[address]; found {
-		cell.backRefs = currentCell.backRefs
-	}
 	if !cell.stringType {
 		postfix := evaler.GetPostfix(cell.value)
 		for _, token := range postfix {
 			if evaler.IsCellAddr(token) {
 				tokenAddr := Address(token)
 				cell.forwardRefs[tokenAddr] = struct{}{}
-				if tokCell, tokErr := s.GetCell(tokenAddr); tokErr == nil {
-					tokCell.backRefs[address] = struct{}{}
-				}
 			}
 		}
 	}
@@ -181,7 +168,7 @@ func (s *Sheet) SetCell(address Address, cell *Cell) {
 
 	s.setMaximums(address)
 
-	// TODO: change to display current cell and all back references
+	// Refresh the sheet
 	s.display()
 }
 
