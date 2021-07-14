@@ -1,4 +1,4 @@
-module github.com/howeyc/sc
+module github.com/scrouthtv/gosc
 
 go 1.16
 
